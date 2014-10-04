@@ -11,6 +11,9 @@
 #define new DEBUG_NEW
 #endif
 
+#include "SoundSystem.h"
+#include "Utils.h"
+
 
 // CAboutDlg dialog used for App About
 
@@ -28,6 +31,7 @@ public:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+	
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
@@ -40,10 +44,13 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+	
 END_MESSAGE_MAP()
 
 
 // CKYPlayerDlg dialog
+
+#define GET_LC()	static_cast<CListCtrl*>(GetDlgItem(IDC_SOUND_LIST))
 
 
 
@@ -61,7 +68,10 @@ void CKYPlayerDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
+	ON_WM_QUERYDRAGICON()		
+	ON_NOTIFY(NM_DBLCLK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMDblclkSoundList)
+	ON_NOTIFY(NM_RCLICK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMRClickSoundList)
+	ON_COMMAND(ID_SOUNDLIST_ADDFILEFROMFOLDER, &CKYPlayerDlg::OnSoundlistAddfilefromfolder)
 END_MESSAGE_MAP()
 
 
@@ -97,6 +107,9 @@ BOOL CKYPlayerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+
+	InitSoundListCtrl();
+	InitSoundSystem();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -150,3 +163,108 @@ HCURSOR CKYPlayerDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+typedef std::list<fs::wpath>	PathList;
+
+static PathList get_all_paths(const fs::wpath &pp)
+{
+	PathList ll;
+
+	const wchar_t * exts[] = { L".mp3", L".ogg", L".wav" };
+	const auto itEnd = fs::wrecursive_directory_iterator();
+	for (auto it = fs::wrecursive_directory_iterator(pp);
+		it != itEnd; ++it)
+	{
+		if (std::find(std::begin(exts), std::end(exts), it->path().extension()) != std::end(exts))
+		{
+			ll.push_back(*it);
+		}		
+	}
+
+	return ll;
+}
+
+
+void CKYPlayerDlg::OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+
+	auto pList = GET_LC();
+
+	const auto key = size_t(pList->GetItemData(pNMItemActivate->iItem));
+
+	auto itFound = m_itemInserted.find(key);
+
+	BOOST_ASSERT(itFound != m_itemInserted.end());
+	
+		
+	auto name = KY::Utils::utf16_to_utf8(itFound->second.fullName.string());
+
+	KY::SoundSystem::Inst()->PlaySound(name, true);
+	
+}
+
+void CKYPlayerDlg::InitSoundListCtrl()
+{
+	auto pList = GET_LC();
+	::CRect rt;
+	pList->GetWindowRect(&rt);
+	pList->InsertColumn(LCT_Name, L"Name", rt.Width(), rt.Width());
+}
+
+void CKYPlayerDlg::InitSoundSystem()
+{
+	KY::SoundSystem::Create();
+}
+
+
+void CKYPlayerDlg::OnNMRClickSoundList(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+
+	CMenu menu;
+	menu.LoadMenu(IDR_MENU_SOUND_LIST);
+
+	::POINT pt = { 0 };
+	::GetCursorPos(&pt);
+
+	menu.GetSubMenu(0)->TrackPopupMenu(0, pt.x, pt.y, this);
+}
+
+void CKYPlayerDlg::OnSoundlistAddfilefromfolder()
+{
+	// TODO: Add your command handler code here
+
+	::CFolderPickerDialog dlg;
+	dlg.DoModal();
+
+	const auto p = dlg.GetFolderPath();
+
+	const auto paths = get_all_paths(fs::wpath(LPCTSTR(p)));
+
+	auto pList = GET_LC();
+
+	typedef std::hash<std::wstring>	WSTRHash;
+
+	for (auto it = paths.begin(); it != paths.end(); ++it)
+	{
+		ItemInfo info;
+
+		info.fullName = *it;
+
+		const auto key = WSTRHash()(info.fullName.string());
+
+		auto idx = pList->InsertItem(pList->GetItemCount(), info.fullName.basename().c_str());
+
+		auto result = m_itemInserted.insert(std::make_pair(key, info));
+		BOOST_VERIFY(result.second);
+		pList->SetItemData(idx, DWORD_PTR(key));
+	}
+
+	auto dd = pList->GetItemCount();
+
+	int debug = 0;
+}

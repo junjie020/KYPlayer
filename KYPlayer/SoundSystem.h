@@ -12,7 +12,7 @@ namespace FMOD
 
 namespace KY
 {
-	class SoundSystem : Singleton<SoundSystem>
+	class SoundSystem : public Singleton<SoundSystem>
 	{
 	public:
 		SoundSystem();

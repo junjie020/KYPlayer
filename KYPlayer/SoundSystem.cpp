@@ -12,6 +12,7 @@ namespace KY
 		, m_pCurPlayingChannel(nullptr)
 	{
 		KY_MOD_VER(FMOD::System_Create(&m_pModSystem));
+		KY_MOD_VER(m_pModSystem->init(48, FMOD_INIT_NORMAL, nullptr));
 	}
 
 	SoundSystem::~SoundSystem()

@@ -9,7 +9,7 @@ namespace KY
 		Singleton()
 		{
 			BOOST_ASSERT(nullptr == ms_Inst);
-			ms_Inst = new Type;
+			ms_Inst = static_cast<Type*>(this);
 		}
 
 		~Singleton()
