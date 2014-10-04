@@ -1,0 +1,13 @@
+*.sdf
+*.obj
+*.filters
+/KYPlayer/Debug
+/bin/Debug/*.ilk
+/bin/Debug/*.pdb
+/bin/Debug/KYPlayer.exe
+/KYPlayer/Release
+/KYPlayer/*.aps
+*.opensdf
+
+/bin/Release/KYPlayer.exe
+/bin/Release/KYPlayer.pdb
