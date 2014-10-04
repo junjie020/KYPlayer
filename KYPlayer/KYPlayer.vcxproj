@@ -109,8 +109,10 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommonDef.h" />
     <ClInclude Include="KYPlayer.h" />
     <ClInclude Include="KYPlayerDlg.h" />
+    <ClInclude Include="PlayerSetting.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SoundSystem.h" />
@@ -121,6 +123,7 @@
   <ItemGroup>
     <ClCompile Include="KYPlayer.cpp" />
     <ClCompile Include="KYPlayerDlg.cpp" />
+    <ClCompile Include="PlayerSetting.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="SoundSystem.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -110,7 +110,7 @@ BOOL CKYPlayerDlg::OnInitDialog()
 
 	InitSoundListCtrl();
 	InitSoundSystem();
-
+	InitSettings();
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -263,8 +263,4 @@ void CKYPlayerDlg::OnSoundlistAddfilefromfolder()
 		BOOST_VERIFY(result.second);
 		pList->SetItemData(idx, DWORD_PTR(key));
 	}
-
-	auto dd = pList->GetItemCount();
-
-	int debug = 0;
 }

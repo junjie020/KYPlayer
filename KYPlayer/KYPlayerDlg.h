@@ -38,6 +38,10 @@ private:
 	};
 	void InitSoundListCtrl();
 	void InitSoundSystem();
+	void InitSettings();
+
+private:
+
 
 	struct ItemInfo
 	{
