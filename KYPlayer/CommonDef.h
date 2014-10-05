@@ -8,8 +8,6 @@ namespace KY
 		PC_SingleLoop = 0,
 		PC_AllLoop,
 		PC_Random,
-
-		
 	};
 }
 #endif //_COMMONDEF_H_

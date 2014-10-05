@@ -15,15 +15,20 @@ namespace KY
 	{
 	public:
 		PlayerSetting();
+		~PlayerSetting();
 
 		std::wstring GetLastListName() const;
-		std::wstring GetListFolder() const;
+		void SetLastListName(const std::wstring &name);
+
+		fs::wpath GetListFolder() const;
+		void SetListFolder(const fs::wpath &pp);
 
 		PlayControl GetPlayControl() const;
+		void SetPlayControl(PlayControl pc);
 
 	private:
-		std::wstring m_LastPlayingListName;
-		std::wstring m_PlayListFolder;
+		std::wstring m_LastListName;
+		fs::wpath m_PlayListFolder;
 
 		PlayControl	m_PlayCtrl;
 

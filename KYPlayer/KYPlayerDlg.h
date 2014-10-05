@@ -36,9 +36,10 @@ private:
 		LCT_Name = 0,
 		LCT_Count,
 	};
-	void InitSoundListCtrl();
-	void InitSoundSystem();
+
+	void InitSoundListCtrl();	
 	void InitSettings();
+	void InitSystems();
 
 private:
 

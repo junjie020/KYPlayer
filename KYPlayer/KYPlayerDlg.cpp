@@ -12,6 +12,9 @@
 #endif
 
 #include "SoundSystem.h"
+#include "PathMgr.h"
+#include "PlayerSetting.h"
+
 #include "Utils.h"
 
 
@@ -107,10 +110,11 @@ BOOL CKYPlayerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	InitSystems();
 
-	InitSoundListCtrl();
-	InitSoundSystem();
+	InitSoundListCtrl();	
 	InitSettings();
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -213,9 +217,9 @@ void CKYPlayerDlg::InitSoundListCtrl()
 	pList->InsertColumn(LCT_Name, L"Name", rt.Width(), rt.Width());
 }
 
-void CKYPlayerDlg::InitSoundSystem()
+void CKYPlayerDlg::InitSettings()
 {
-	KY::SoundSystem::Create();
+
 }
 
 
@@ -263,4 +267,12 @@ void CKYPlayerDlg::OnSoundlistAddfilefromfolder()
 		BOOST_VERIFY(result.second);
 		pList->SetItemData(idx, DWORD_PTR(key));
 	}
+}
+
+void CKYPlayerDlg::InitSystems()
+{
+	KY::PlayerSetting::Create();
+	KY::PathMgr::Create();
+
+	KY::SoundSystem::Create();
 }

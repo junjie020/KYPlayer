@@ -61,7 +61,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmod_vc.lib;tinyxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../Import/lib/$(Configuration)/FMOD;../Import/lib/$(Configuration)/TinyXML;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
@@ -91,7 +91,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmod_vc.lib;tinyxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../Import/lib/$(Configuration)/FMOD;../Import/lib/$(Configuration)/TinyXML;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
@@ -112,6 +112,7 @@
     <ClInclude Include="CommonDef.h" />
     <ClInclude Include="KYPlayer.h" />
     <ClInclude Include="KYPlayerDlg.h" />
+    <ClInclude Include="PathMgr.h" />
     <ClInclude Include="PlayerSetting.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Singleton.h" />
@@ -123,6 +124,7 @@
   <ItemGroup>
     <ClCompile Include="KYPlayer.cpp" />
     <ClCompile Include="KYPlayerDlg.cpp" />
+    <ClCompile Include="PathMgr.cpp" />
     <ClCompile Include="PlayerSetting.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="SoundSystem.cpp" />
