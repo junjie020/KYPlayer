@@ -11,6 +11,8 @@
 #define new DEBUG_NEW
 #endif
 
+#include "InputDialog.h"
+
 #include "SoundSystem.h"
 #include "PathMgr.h"
 #include "PlayerSetting.h"
@@ -55,6 +57,7 @@ END_MESSAGE_MAP()
 // CKYPlayerDlg dialog
 
 #define GET_LC()	static_cast<CListCtrl*>(GetDlgItem(IDC_SOUND_LIST))
+#define GET_PL_CB()	static_cast<CComboBox*>(GetDlgItem(IDC_COMBO_PLAY_LIST_NAME))
 
 
 
@@ -79,6 +82,8 @@ BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_COMMAND(ID_MANAGERLIST_SAVE, &CKYPlayerDlg::OnManagerlistSave)
 	ON_COMMAND(ID_MANAGERLIST_LOAD, &CKYPlayerDlg::OnManagerlistLoad)
 	ON_COMMAND(ID_MANAGERLIST_NEW, &CKYPlayerDlg::OnManagerlistNew)
+	ON_CBN_SELCHANGE(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnSelchangeComboPlayListName)	
+	ON_CBN_KILLFOCUS(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnKillfocusComboPlayListName)
 END_MESSAGE_MAP()
 
 
@@ -118,6 +123,8 @@ BOOL CKYPlayerDlg::OnInitDialog()
 
 	InitSoundListCtrl();	
 	InitSettings();
+
+	AfterInit();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -259,7 +266,6 @@ void CKYPlayerDlg::InitSettings()
 	{
 		FillSoundList();
 	}
-	
 }
 
 
@@ -299,6 +305,8 @@ void CKYPlayerDlg::OnSoundlistAddfilefromfolder()
 			pl->AddSound(*it, 0);
 		}
 
+		FillSoundList();
+
 		return; 
 	}
 
@@ -326,27 +334,28 @@ void CKYPlayerDlg::OnManagerlistSave()
 {
 	// TODO: Add your command handler code here
 
-	::CFileDialog dlg(FALSE, L"pl");
-	if (IDOK == dlg.DoModal())
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+
+	if (nullptr != pl)
 	{
-		const fs::wpath pp = std::wstring(dlg.GetFolderPath());
+		fs::wpath savePath = pl->GetSavePath();
 
-		auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
-
-		if (nullptr != pl)
+		if (savePath.empty())
 		{
-			const auto result = pl->Save(pp);
+			CInputDialog inDlg;
+			inDlg.DoModal();
 
-			if (!result)
-			{
-				MessageBox((L"save file failed :" + pp.string()).c_str());
-			}
+			savePath = (KY::PathMgr::Inst()->GetPlayListPath() / fs::wpath(inDlg.GetContent() + L".pl"));
 		}
+	
+		const auto result = pl->Save(savePath);
 
-		
+		if (!result)
+		{
+			MessageBox((L"save file failed :" + savePath.string()).c_str());
+		}
 	}
 }
-
 
 void CKYPlayerDlg::OnManagerlistLoad()
 {
@@ -365,4 +374,67 @@ void CKYPlayerDlg::OnManagerlistNew()
 	auto name = pl.GetName();
 
 	KY::PlayListMgr::Inst()->AddPlayList(pl);
+}
+
+void CKYPlayerDlg::OnCbnSelchangeComboPlayListName()
+{
+	// TODO: Add your control notification handler code here
+	auto pCombo = GET_PL_CB();
+
+	const auto idx = pCombo->GetCurSel();
+
+	CString curName;
+	pCombo->GetLBText(idx, curName);
+
+	KY::PlayListMgr::Inst()->SetCurPlayListName(LPCTSTR(curName));
+}
+
+
+void CKYPlayerDlg::AfterInit()
+{
+	ResetPlayListCombo();	
+}
+
+void CKYPlayerDlg::ResetPlayListCombo()
+{
+	auto pPLCB = GET_PL_CB();
+
+	pPLCB->ResetContent();
+
+	auto pls = KY::PlayListMgr::Inst()->GetPlayLists();
+
+	for (auto it = pls.begin(); it != pls.end(); ++it)
+	{
+		const auto &name = it->first;
+		pPLCB->AddString(name.c_str());
+	}
+
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+
+	if (nullptr != pl)
+	{
+		pPLCB->SelectString(0, pl->GetName().c_str());
+	}
+}
+
+
+void CKYPlayerDlg::OnCbnKillfocusComboPlayListName()
+{
+	// TODO: Add your control notification handler code here
+
+	// TODO: Add your control notification handler code here
+	auto pCombo = GET_PL_CB();
+	CString curName;
+	pCombo->GetWindowText(curName);
+	const std::wstring sNewName(curName);
+
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+	auto oldName = pl->GetName();
+	if (sNewName == oldName)
+		return;
+
+	KY::PlayListMgr::Inst()->ChangePlayListName(oldName, sNewName);
+	KY::PlayListMgr::Inst()->SetCurPlayListName(sNewName);
+
+	ResetPlayListCombo();
 }

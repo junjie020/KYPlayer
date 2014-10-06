@@ -41,8 +41,10 @@ namespace KY
 	}
 
 #define LIST_VERSION 0x0001
-	bool PlayList::Save(const fs::wpath &plName) const
+	bool PlayList::Save(const fs::wpath &plPath)
 	{
+		m_FromPath = plPath;
+
 		tinyxml2::XMLDocument doc;
 
 		auto pRootElem = doc.NewElement("Root");
@@ -55,24 +57,31 @@ namespace KY
 		{
 			auto pFileElem = doc.NewElement("File");
 
+			//{@
 			auto pFileNameElem = doc.NewElement("Name");
 			pFileNameElem->SetText(Utils::utf16_to_utf8(it->fileName.string()).c_str());
+
 			pFileElem->InsertEndChild(pFileNameElem);
 
-			auto pFilePlayTimes = doc.NewElement("PlayTimes");
-			std::string buf; buf.resize(8);
-			std::iota(buf.begin(), buf.end(), it->playTimes);
-			pFilePlayTimes->SetText(buf.c_str());
-			pFileElem->InsertEndChild(pFilePlayTimes);
+			auto pFilePlayTimes = doc.NewElement("PlayTimes");			
+			std::ostringstream oss; oss << it->playTimes;
+			pFilePlayTimes->SetText(oss.str().c_str());
+
+			pFileElem->InsertEndChild(pFilePlayTimes);			
+			//@}
+
+
+			pRootElem->InsertEndChild(pFileElem);
 		}
 
-		doc.SaveFile(Utils::utf16_to_utf8(plName.string()).c_str());
+		doc.InsertEndChild(pRootElem);
 
-		return false;
+		return tinyxml2::XML_SUCCESS == doc.SaveFile(Utils::utf16_to_utf8(plPath.string()).c_str());
 	}
 
 	bool PlayList::Load(const fs::wpath &p)
 	{		
+		m_FromPath = p;
 		tinyxml2::XMLDocument doc;
 		const std::string fileName = KY::Utils::utf16_to_utf8(p.string());
 		if (tinyxml2::XML_SUCCESS == doc.LoadFile(fileName.c_str()))
@@ -182,6 +191,26 @@ namespace KY
 	{
 		m_CurPLName = name;
 		return m_PLMap.find(name) != m_PLMap.end();
+	}
+
+	bool PlayListMgr::ChangePlayListName(const std::wstring &oldName, const std::wstring &newName)
+	{
+		if (oldName == newName)
+			return false;
+
+		auto itFound = m_PLMap.find(oldName);
+		if (itFound == m_PLMap.end())
+			return false;
+
+		auto pl = itFound->second;
+
+		pl.SetName(newName);
+
+		m_PLMap.insert(std::make_pair(newName, pl));
+
+		m_PLMap.erase(itFound);
+
+		return true;
 	}
 
 }

@@ -43,6 +43,10 @@ private:
 
 	void FillSoundList();
 
+	void AfterInit();
+
+	void ResetPlayListCombo();
+
 private:
 public:
 	afx_msg void OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult);
@@ -51,4 +55,6 @@ public:
 	afx_msg void OnManagerlistSave();
 	afx_msg void OnManagerlistLoad();
 	afx_msg void OnManagerlistNew();
+	afx_msg void OnCbnSelchangeComboPlayListName();	
+	afx_msg void OnCbnKillfocusComboPlayListName();
 };

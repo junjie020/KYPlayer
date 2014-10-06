@@ -25,21 +25,35 @@ namespace KY
 
 		const SoundInfo* GetSoundInfo(uint32 idx) const;
 
+		const fs::wpath& GetSavePath() const;
+
 	public:
-		bool Save(const fs::wpath &p) const;
+		bool Save(const fs::wpath &p);
 		bool Load(const fs::wpath &p);
 
 	public:
 		inline const std::wstring& GetName() const;
+		inline void SetName(const std::wstring &name);
 
 	private:
 		SoundInfoList	m_PLList;
 		std::wstring	m_Name;
+		fs::wpath		m_FromPath;
 	};
 
 	inline const std::wstring& PlayList::GetName() const
 	{
 		return m_Name;
+	}
+
+	inline void PlayList::SetName(const std::wstring &name)
+	{
+		m_Name = name;
+	}
+
+	inline const fs::wpath& PlayList::GetSavePath() const
+	{
+		return m_FromPath;
 	}
 
 	class PlayListMgr : public Singleton < PlayListMgr >
@@ -56,13 +70,22 @@ namespace KY
 		const PlayList* GetCurPlayList() const;
 		PlayList* GetCurPlayList();
 
+		bool ChangePlayListName(const std::wstring &oldName, const std::wstring &newName);
 
+	public:
+		typedef std::unordered_map<std::wstring, PlayList>	PlayListMap;
+		inline const PlayListMap& GetPlayLists() const;
 
 	private:
-		typedef std::unordered_map<std::wstring, PlayList>	PlayListMap;
+		
 
 		PlayListMap		m_PLMap;
 		std::wstring	m_CurPLName;
 	};
+
+	inline const PlayListMgr::PlayListMap& PlayListMgr::GetPlayLists() const
+	{
+		return m_PLMap;
+	}
 }
 #endif //_PLAYLISTMGR_H_
