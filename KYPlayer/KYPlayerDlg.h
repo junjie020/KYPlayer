@@ -48,6 +48,13 @@ private:
 	void ResetPlayListCombo();
 
 private:
+	enum TimerEvent
+	{
+		TE_UpdateSoundSys = 0,
+	};
+	static void CALLBACK TimerCallBack(HWND hWnd, UINT msg, UINT_PTR timerID, DWORD dwTime);
+
+private:
 public:
 	afx_msg void OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMRClickSoundList(NMHDR *pNMHDR, LRESULT *pResult);

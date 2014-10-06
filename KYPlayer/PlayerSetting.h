@@ -17,19 +17,14 @@ namespace KY
 		PlayerSetting();
 		~PlayerSetting();
 
-		std::wstring GetLastListName() const;
-		void SetLastListName(const std::wstring &name);
-
-		fs::wpath GetListFolder() const;
-		void SetListFolder(const fs::wpath &pp);
+		void Init();
 
 		PlayControl GetPlayControl() const;
 		void SetPlayControl(PlayControl pc);
 
-	private:
-		std::wstring m_LastListName;
-		fs::wpath m_PlayListFolder;
+		bool Save();
 
+	private:
 		PlayControl	m_PlayCtrl;
 
 		tinyxml2::XMLDocument *m_pDoc;

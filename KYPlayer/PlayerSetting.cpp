@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "PlayerSetting.h"
+#include "PlayListMgr.h"
 #include "PathMgr.h"
 #include "Utils.h"
 
@@ -36,43 +37,31 @@ namespace KY
 	}
 
 
+	static inline fs::wpath get_setting_path()
+	{
+		return PathMgr::Inst()->GetSettingPath() / fs::wpath(L"Settings.xml");
+	}
+
 	PlayerSetting::PlayerSetting()
 		: m_pDoc(new tinyxml2::XMLDocument())
 		, m_PlayCtrl(PC_AllLoop)
 	{
-		const fs::wpath settingPath = PathMgr::Inst()->GetSettingPath() / fs::wpath(L"Settings.xml");
 
-		BOOST_ASSERT(fs::exists(settingPath));
+	}
 
-		if (tinyxml2::XML_SUCCESS == m_pDoc->LoadFile(Utils::utf16_to_utf8(settingPath.string()).c_str()))
-		{
-			tinyxml2::XMLElement *pRootElem = m_pDoc->RootElement();
-			tinyxml2::XMLElement *pPlayList = pRootElem->FirstChildElement("LastPlayList");
-			auto lstName = pPlayList->GetText();
-			if (nullptr != lstName)
-			{
-				m_LastListName = KY::Utils::utf8_to_utf16(lstName);
-			}
-			
-			tinyxml2::XMLElement *pPlayListFolder = pRootElem->FirstChildElement("PLFolder");
-			auto lstFolder = pPlayListFolder->GetText();
-			if (nullptr != lstFolder)
-			{
-				m_PlayListFolder = KY::Utils::utf8_to_utf16(lstFolder);
-			}
-			
-			tinyxml2::XMLElement *pPlayCtrl = pRootElem->FirstChildElement("PlayOrder");
-			auto ctrlText = pPlayCtrl->GetText();
-			if (nullptr != ctrlText)
-			{
-				m_PlayCtrl = PlayControl(get_play_ctrl(ctrlText));
-			}
-		}
-		else
-		{
-			delete m_pDoc;
-			m_pDoc = nullptr;
-		}
+	PlayerSetting::~PlayerSetting()
+	{
+		Save();
+	}
+
+	KY::PlayControl PlayerSetting::GetPlayControl() const
+	{
+		return m_PlayCtrl;
+	}
+
+	void PlayerSetting::SetPlayControl(PlayControl pc)
+	{
+		m_PlayCtrl = pc;
 	}
 
 	static void check_insert_set_value(tinyxml2::XMLElement *pParent, const char* elemName, const std::wstring &value)
@@ -86,50 +75,50 @@ namespace KY
 			pParent->InsertEndChild(pElem);
 		}
 
-		pElem->SetValue(KY::Utils::utf16_to_utf8(value).c_str());
+		pElem->SetText(KY::Utils::utf16_to_utf8(value).c_str());
 	}
 
-	PlayerSetting::~PlayerSetting()
+	bool PlayerSetting::Save()
 	{
 		tinyxml2::XMLElement *pRootElem = m_pDoc->FirstChildElement();
 
-		check_insert_set_value(pRootElem, "LastPlayList", m_LastListName);
+		auto pl = PlayListMgr::Inst()->GetCurPlayList();
 
-		check_insert_set_value(pRootElem, "PLFolder", m_PlayListFolder.string());
-
+		check_insert_set_value(pRootElem, "LastPlayList", pl->GetName());
 		check_insert_set_value(pRootElem, "PlayOrder", get_play_ctrl_name(m_PlayCtrl));
 
+		const auto pp = get_setting_path();
+		return tinyxml2::XML_SUCCESS == m_pDoc->SaveFile(Utils::utf16_to_utf8(pp).c_str());
 	}
 
-
-	std::wstring PlayerSetting::GetLastListName() const
+	void PlayerSetting::Init()
 	{
-		return m_LastListName;
-	}
+		const fs::wpath settingPath = get_setting_path();
 
-	void PlayerSetting::SetLastListName(const std::wstring &name)
-	{
-		m_LastListName = name;
-	}
+		BOOST_ASSERT(fs::exists(settingPath));
 
-	fs::wpath PlayerSetting::GetListFolder() const
-	{
-		return m_PlayListFolder;
-	}
+		if (tinyxml2::XML_SUCCESS == m_pDoc->LoadFile(Utils::utf16_to_utf8(settingPath.string()).c_str()))
+		{
+			tinyxml2::XMLElement *pRootElem = m_pDoc->RootElement();
+			tinyxml2::XMLElement *pPlayList = pRootElem->FirstChildElement("LastPlayList");
+			auto lstName = pPlayList->GetText();
+			if (nullptr != lstName)
+			{
+				PlayListMgr::Inst()->SetCurPlayListName(Utils::utf8_to_utf16(lstName));
+			}
 
-	void PlayerSetting::SetListFolder(const fs::wpath &pp)
-	{
-
-	}
-
-	KY::PlayControl PlayerSetting::GetPlayControl() const
-	{
-		return m_PlayCtrl;
-	}
-
-	void PlayerSetting::SetPlayControl(PlayControl pc)
-	{
-
+			tinyxml2::XMLElement *pPlayCtrl = pRootElem->FirstChildElement("PlayOrder");
+			auto ctrlText = pPlayCtrl->GetText();
+			if (nullptr != ctrlText)
+			{
+				m_PlayCtrl = PlayControl(get_play_ctrl(ctrlText));
+			}
+		}
+		else
+		{
+			delete m_pDoc;
+			m_pDoc = nullptr;
+		}
 	}
 
 

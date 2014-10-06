@@ -12,6 +12,7 @@ namespace KY
 
 	PlayList::PlayList(const std::wstring &name)
 		: m_Name(name)
+		, m_PlayingIdx(0)
 	{
 		if (m_Name.empty())
 		{

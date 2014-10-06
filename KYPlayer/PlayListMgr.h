@@ -18,7 +18,7 @@ namespace KY
 		PlayList(const fs::wpath &plName);
 		~PlayList();
 
-	public:		
+	public:
 		const SoundInfoList& GetPLInfoList() const;
 		bool AddSound(const SoundInfo &sound);
 		bool AddSound(const fs::wpath &soundPath, uint32 playTimes);
@@ -35,10 +35,14 @@ namespace KY
 		inline const std::wstring& GetName() const;
 		inline void SetName(const std::wstring &name);
 
+		inline uint32 GetPlayingIdx() const;
+		inline void SetPlayingIdx(uint32 idx);
+
 	private:
 		SoundInfoList	m_PLList;
 		std::wstring	m_Name;
 		fs::wpath		m_FromPath;
+		uint32			m_PlayingIdx;
 	};
 
 	inline const std::wstring& PlayList::GetName() const
@@ -49,6 +53,16 @@ namespace KY
 	inline void PlayList::SetName(const std::wstring &name)
 	{
 		m_Name = name;
+	}
+
+	inline uint32 PlayList::GetPlayingIdx() const
+	{
+		return m_PlayingIdx;
+	}
+
+	inline void PlayList::SetPlayingIdx(uint32 idx)
+	{
+		m_PlayingIdx = idx;
 	}
 
 	inline const fs::wpath& PlayList::GetSavePath() const

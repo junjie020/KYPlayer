@@ -126,6 +126,8 @@ BOOL CKYPlayerDlg::OnInitDialog()
 
 	AfterInit();
 
+	SetTimer(TE_UpdateSoundSys, 1500, TimerCallBack);
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -209,11 +211,9 @@ void CKYPlayerDlg::OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult)
 
 	BOOST_ASSERT(nullptr != pl);
 
-	auto soundInfo = pl->GetSoundInfo(pNMItemActivate->iItem);
+	pl->SetPlayingIdx(pNMItemActivate->iItem);
 
-	BOOST_ASSERT(nullptr != soundInfo);
-
-	KY::SoundSystem::Inst()->PlaySound(KY::Utils::utf16_to_utf8(soundInfo->fileName.string()), true);	
+	KY::SoundSystem::Inst()->PlaySound(pNMItemActivate->iItem, true);	
 }
 
 void CKYPlayerDlg::InitSoundListCtrl()
@@ -226,11 +226,10 @@ void CKYPlayerDlg::InitSoundListCtrl()
 
 static bool init_cur_play_list_from_setting()
 {
-	auto lastListName = KY::PlayerSetting::Inst()->GetLastListName();
-
-	if (!lastListName.empty())
+	auto curPl = KY::PlayListMgr::Inst()->GetCurPlayList();
+	if (nullptr != curPl)
 	{
-		return KY::PlayListMgr::Inst()->SetCurPlayListName(lastListName);		
+		return true;
 	}
 
 	// need create new PlayList
@@ -239,7 +238,13 @@ static bool init_cur_play_list_from_setting()
 
 	KY::PlayListMgr::Inst()->AddPlayList(pl);
 
-	return KY::PlayListMgr::Inst()->SetCurPlayListName(name);
+	if (KY::PlayListMgr::Inst()->SetCurPlayListName(name))
+	{
+		KY::PlayerSetting::Inst()->Save();
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -319,13 +324,13 @@ void CKYPlayerDlg::InitSystems()
 {
 	auto pathMgr = KY::PathMgr::Create();	// must be first
 
-	KY::PlayerSetting::Create();
-	
+	auto pSetting = KY::PlayerSetting::Create();	
 	auto plMgr = KY::PlayListMgr::Create();
-	plMgr->Init(pathMgr->GetPlayListPath());
 
 	KY::SoundSystem::Create();
 
+	pSetting->Init();
+	plMgr->Init(pathMgr->GetPlayListPath());
 
 }
 
@@ -437,4 +442,10 @@ void CKYPlayerDlg::OnCbnKillfocusComboPlayListName()
 	KY::PlayListMgr::Inst()->SetCurPlayListName(sNewName);
 
 	ResetPlayListCombo();
+}
+
+void CALLBACK CKYPlayerDlg::TimerCallBack(HWND hWnd, UINT msg, UINT_PTR timerID, DWORD dwTime)
+{
+	if ( timerID == TE_UpdateSoundSys)
+		KY::SoundSystem::Inst()->Update();
 }
