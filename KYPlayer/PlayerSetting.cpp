@@ -45,6 +45,7 @@ namespace KY
 	PlayerSetting::PlayerSetting()
 		: m_pDoc(new tinyxml2::XMLDocument())
 		, m_PlayCtrl(PC_AllLoop)
+		, m_LastPlayIdx(0)
 	{
 
 	}
@@ -122,13 +123,7 @@ namespace KY
 				std::istringstream iss;
 				auto idx = pLastSongIdx->GetText();
 				iss.str(idx);
-				auto pl = PlayListMgr::Inst()->GetCurPlayList();
-				if (nullptr != pl)
-				{
-					uint32 cc = 0;
-					iss >> cc;				
-					pl->SetPlayingIdx(cc);					
-				}
+				iss >> m_LastPlayIdx;
 			}
 		}
 		else
@@ -136,6 +131,11 @@ namespace KY
 			delete m_pDoc;
 			m_pDoc = nullptr;
 		}
+	}
+
+	KY::uint32 PlayerSetting::GetLastPlayingIdx() const
+	{
+		return m_LastPlayIdx;
 	}
 
 

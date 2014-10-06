@@ -21,12 +21,13 @@ namespace KY
 
 		PlayControl GetPlayControl() const;
 		void SetPlayControl(PlayControl pc);
+		uint32 GetLastPlayingIdx() const;
 
 		bool Save();
 
 	private:
 		PlayControl	m_PlayCtrl;
-
+		uint32		m_LastPlayIdx;
 		tinyxml2::XMLDocument *m_pDoc;
 	};
 

@@ -425,16 +425,11 @@ void CKYPlayerDlg::ResetPlayListCombo()
 void CKYPlayerDlg::PlayLastSong()
 {
 	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
-	if (nullptr != pl)
+	if (nullptr != pl && !pl->GetPLInfoList().empty() )
 	{
-		auto soundInfo = pl->GetSoundInfo(pl->GetPlayingIdx());
-
-		if (nullptr != soundInfo)
-		{
-			KY::PlayListMgr::Inst()->SetCurPlayListName(soundInfo->fileName.string());
-
-			KY::SoundSystem::Inst()->PlaySound(pl->GetPlayingIdx());
-		}
+		const auto idx = KY::PlayerSetting::Inst()->GetLastPlayingIdx();
+		pl->SetPlayingIdx(idx);
+		KY::SoundSystem::Inst()->PlaySound(idx);		
 	}
 }
 
