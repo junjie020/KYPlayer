@@ -6,6 +6,8 @@
 #include "KYPlayer.h"
 #include "KYPlayerDlg.h"
 
+#include "SoundSystem.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -97,6 +99,19 @@ BOOL CKYPlayerApp::InitInstance()
 
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
+	return FALSE;
+}
+
+BOOL CKYPlayerApp::OnIdle(LONG lCount)
+{
+	if (lCount == 10)
+	{
+		if (!KY::SoundSystem::Inst()->IsPlaying())
+		{
+			KY::SoundSystem::Inst()->PlayNextSound();
+		}
+	}
+
 	return FALSE;
 }
 

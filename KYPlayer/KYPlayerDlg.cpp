@@ -126,8 +126,6 @@ BOOL CKYPlayerDlg::OnInitDialog()
 
 	AfterInit();
 
-	SetTimer(TE_UpdateSoundSys, 1500, TimerCallBack);
-
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -392,6 +390,7 @@ void CKYPlayerDlg::OnCbnSelchangeComboPlayListName()
 	pCombo->GetLBText(idx, curName);
 
 	KY::PlayListMgr::Inst()->SetCurPlayListName(LPCTSTR(curName));
+	KY::PlayerSetting::Inst()->Save();
 }
 
 
@@ -442,10 +441,6 @@ void CKYPlayerDlg::OnCbnKillfocusComboPlayListName()
 	KY::PlayListMgr::Inst()->SetCurPlayListName(sNewName);
 
 	ResetPlayListCombo();
-}
 
-void CALLBACK CKYPlayerDlg::TimerCallBack(HWND hWnd, UINT msg, UINT_PTR timerID, DWORD dwTime)
-{
-	if ( timerID == TE_UpdateSoundSys)
-		KY::SoundSystem::Inst()->Update();
+	KY::PlayerSetting::Inst()->Save();
 }

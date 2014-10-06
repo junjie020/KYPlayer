@@ -39,22 +39,12 @@ namespace KY
 		return bPaly;		
 	}
 
-	static FMOD_RESULT F_CALLBACK ChannelCallBack(FMOD_CHANNELCONTROL *channelcontrol, FMOD_CHANNELCONTROL_TYPE controltype, FMOD_CHANNELCONTROL_CALLBACK_TYPE callbacktype, void *commanddata1, void *commanddata2)
-	{
-		switch (controltype)
-		{
-		case FMOD_CHANNELCONTROL_CALLBACK_END:
-			SoundSystem::Inst()->PlayNextSound();
-			return FMOD_OK;
-		}
-
-		return FMOD_OK;
-	}
-
 	void SoundSystem::PlaySound(uint32 idx, bool bPlayImmediately /*= true*/)
 	{
 		auto pl = PlayListMgr::Inst()->GetCurPlayList();
 		auto soundInfo = pl->GetSoundInfo(idx);
+		++soundInfo->playTimes;
+		pl->Save(pl->GetSavePath());
 
 		PlaySound(soundInfo->fileName, bPlayImmediately);
 	}
@@ -65,12 +55,8 @@ namespace KY
 		clearCurPlay();
 		KY_MOD_VER(m_pModSystem->createSound(Utils::utf16_to_utf8(fileName).c_str(), FMOD_DEFAULT, 0, &m_pCurPlayingSound));
 
+		KY_MOD_VER(m_pModSystem->update());
 		KY_MOD_VER(m_pModSystem->playSound(m_pCurPlayingSound, nullptr, !bPlayImmediately, &m_pCurPlayingChannel));
-
-		if (nullptr != m_pCurPlayingChannel)
-		{
-			m_pCurPlayingChannel->setCallback(ChannelCallBack);
-		}
 	}
 
 	void SoundSystem::Repaly()
@@ -121,14 +107,8 @@ namespace KY
 
 		const auto nextIdx = pl->GetPlayingIdx() + 1;
 
-		PlaySound(nextIdx, true);
+		pl->SetPlayingIdx(nextIdx);
+		
+		PlaySound(nextIdx, true);		
 	}
-
-	void SoundSystem::Update()
-	{
-		KY_MOD_VER(m_pModSystem->update());
-	}
-
-
-
 }

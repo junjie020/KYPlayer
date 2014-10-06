@@ -24,6 +24,7 @@ namespace KY
 		bool AddSound(const fs::wpath &soundPath, uint32 playTimes);
 
 		const SoundInfo* GetSoundInfo(uint32 idx) const;
+		SoundInfo*	GetSoundInfo(uint32 idx);
 
 		const fs::wpath& GetSavePath() const;
 

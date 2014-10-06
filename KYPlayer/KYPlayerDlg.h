@@ -45,14 +45,7 @@ private:
 
 	void AfterInit();
 
-	void ResetPlayListCombo();
-
-private:
-	enum TimerEvent
-	{
-		TE_UpdateSoundSys = 0,
-	};
-	static void CALLBACK TimerCallBack(HWND hWnd, UINT msg, UINT_PTR timerID, DWORD dwTime);
+	void ResetPlayListCombo();	
 
 private:
 public:

@@ -132,6 +132,12 @@ namespace KY
 		return &m_PLList[idx];
 	}
 
+	SoundInfo* PlayList::GetSoundInfo(uint32 idx)
+	{
+		BOOST_ASSERT(idx < m_PLList.size());
+		return &m_PLList[idx];
+	}
+
 
 	PlayListMgr::PlayListMgr()
 	{

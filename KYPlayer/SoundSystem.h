@@ -20,17 +20,15 @@ namespace KY
 
 		bool IsPlaying() const;
 		void PlaySound(uint32 idx, bool bPlayImmediately = true);
-		void PlaySound(const std::wstring &fileName, bool bPlayImmediately = true);
+		
 		void StopPlay();
 		void Repaly();
 		bool PauseCurPaly(bool bPause);
 
 		void PlayNextSound();
 
-	public:
-		void Update();
-
 	private:
+		void PlaySound(const std::wstring &fileName, bool bPlayImmediately = true);
 		void clearCurPlay();
 
 	private:
