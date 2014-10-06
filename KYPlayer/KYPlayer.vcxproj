@@ -114,11 +114,13 @@
     <ClInclude Include="KYPlayerDlg.h" />
     <ClInclude Include="PathMgr.h" />
     <ClInclude Include="PlayerSetting.h" />
+    <ClInclude Include="PlayListMgr.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SoundSystem.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TypeDef.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +128,7 @@
     <ClCompile Include="KYPlayerDlg.cpp" />
     <ClCompile Include="PathMgr.cpp" />
     <ClCompile Include="PlayerSetting.cpp" />
+    <ClCompile Include="PlayListMgr.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="SoundSystem.cpp" />
     <ClCompile Include="stdafx.cpp">

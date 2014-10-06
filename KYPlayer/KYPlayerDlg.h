@@ -41,19 +41,14 @@ private:
 	void InitSettings();
 	void InitSystems();
 
+	void FillSoundList();
+
 private:
-
-
-	struct ItemInfo
-	{
-		fs::wpath fullName;
-	};
-	typedef std::unordered_map<size_t, ItemInfo>	ItemMap;
-
-	ItemMap m_itemInserted;
-	
 public:
 	afx_msg void OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMRClickSoundList(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnSoundlistAddfilefromfolder();
+	afx_msg void OnSoundlistAddfilefromfolder();		
+	afx_msg void OnManagerlistSave();
+	afx_msg void OnManagerlistLoad();
+	afx_msg void OnManagerlistNew();
 };

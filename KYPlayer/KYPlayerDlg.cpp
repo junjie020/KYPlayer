@@ -14,6 +14,7 @@
 #include "SoundSystem.h"
 #include "PathMgr.h"
 #include "PlayerSetting.h"
+#include "PlayListMgr.h"
 
 #include "Utils.h"
 
@@ -74,7 +75,10 @@ BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()		
 	ON_NOTIFY(NM_DBLCLK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMDblclkSoundList)
 	ON_NOTIFY(NM_RCLICK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMRClickSoundList)
-	ON_COMMAND(ID_SOUNDLIST_ADDFILEFROMFOLDER, &CKYPlayerDlg::OnSoundlistAddfilefromfolder)
+	ON_COMMAND(ID_SOUNDLIST_ADDFILEFROMFOLDER, &CKYPlayerDlg::OnSoundlistAddfilefromfolder)		
+	ON_COMMAND(ID_MANAGERLIST_SAVE, &CKYPlayerDlg::OnManagerlistSave)
+	ON_COMMAND(ID_MANAGERLIST_LOAD, &CKYPlayerDlg::OnManagerlistLoad)
+	ON_COMMAND(ID_MANAGERLIST_NEW, &CKYPlayerDlg::OnManagerlistNew)
 END_MESSAGE_MAP()
 
 
@@ -194,19 +198,15 @@ void CKYPlayerDlg::OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult)
 	// TODO: Add your control notification handler code here
 	*pResult = 0;
 
-	auto pList = GET_LC();
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
 
-	const auto key = size_t(pList->GetItemData(pNMItemActivate->iItem));
+	BOOST_ASSERT(nullptr != pl);
 
-	auto itFound = m_itemInserted.find(key);
+	auto soundInfo = pl->GetSoundInfo(pNMItemActivate->iItem);
 
-	BOOST_ASSERT(itFound != m_itemInserted.end());
-	
-		
-	auto name = KY::Utils::utf16_to_utf8(itFound->second.fullName.string());
+	BOOST_ASSERT(nullptr != soundInfo);
 
-	KY::SoundSystem::Inst()->PlaySound(name, true);
-	
+	KY::SoundSystem::Inst()->PlaySound(KY::Utils::utf16_to_utf8(soundInfo->fileName.string()), true);	
 }
 
 void CKYPlayerDlg::InitSoundListCtrl()
@@ -217,9 +217,49 @@ void CKYPlayerDlg::InitSoundListCtrl()
 	pList->InsertColumn(LCT_Name, L"Name", rt.Width(), rt.Width());
 }
 
+static bool init_cur_play_list_from_setting()
+{
+	auto lastListName = KY::PlayerSetting::Inst()->GetLastListName();
+
+	if (!lastListName.empty())
+	{
+		return KY::PlayListMgr::Inst()->SetCurPlayListName(lastListName);		
+	}
+
+	// need create new PlayList
+	KY::PlayList pl;
+	auto name = pl.GetName();
+
+	KY::PlayListMgr::Inst()->AddPlayList(pl);
+
+	return KY::PlayListMgr::Inst()->SetCurPlayListName(name);
+}
+
+
+void CKYPlayerDlg::FillSoundList()
+{
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+	BOOST_ASSERT(nullptr != pl);
+
+	auto plInfo = pl->GetPLInfoList();
+	auto pListCtrl = GET_LC();
+	for (auto it = plInfo.begin(); it != plInfo.end(); ++it)
+	{
+		auto soundInfo = *it;
+		pListCtrl->InsertItem(pListCtrl->GetItemCount(), soundInfo.fileName.string().c_str());
+	}
+}
+
+
 void CKYPlayerDlg::InitSettings()
 {
+	auto result = init_cur_play_list_from_setting();
 
+	if (result)
+	{
+		FillSoundList();
+	}
+	
 }
 
 
@@ -251,28 +291,78 @@ void CKYPlayerDlg::OnSoundlistAddfilefromfolder()
 
 	auto pList = GET_LC();
 
-	typedef std::hash<std::wstring>	WSTRHash;
-
-	for (auto it = paths.begin(); it != paths.end(); ++it)
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+	if (nullptr != pl)
 	{
-		ItemInfo info;
+		for (auto it = paths.begin(); it != paths.end(); ++it)
+		{
+			pl->AddSound(*it, 0);
+		}
 
-		info.fullName = *it;
-
-		const auto key = WSTRHash()(info.fullName.string());
-
-		auto idx = pList->InsertItem(pList->GetItemCount(), info.fullName.basename().c_str());
-
-		auto result = m_itemInserted.insert(std::make_pair(key, info));
-		BOOST_VERIFY(result.second);
-		pList->SetItemData(idx, DWORD_PTR(key));
+		return; 
 	}
+
+	MessageBox(L"no PlayList found");
+
+
 }
 
 void CKYPlayerDlg::InitSystems()
 {
+	auto pathMgr = KY::PathMgr::Create();	// must be first
+
 	KY::PlayerSetting::Create();
-	KY::PathMgr::Create();
+	
+	auto plMgr = KY::PlayListMgr::Create();
+	plMgr->Init(pathMgr->GetPlayListPath());
 
 	KY::SoundSystem::Create();
+
+
+}
+
+
+void CKYPlayerDlg::OnManagerlistSave()
+{
+	// TODO: Add your command handler code here
+
+	::CFileDialog dlg(FALSE, L"pl");
+	if (IDOK == dlg.DoModal())
+	{
+		const fs::wpath pp = std::wstring(dlg.GetFolderPath());
+
+		auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+
+		if (nullptr != pl)
+		{
+			const auto result = pl->Save(pp);
+
+			if (!result)
+			{
+				MessageBox((L"save file failed :" + pp.string()).c_str());
+			}
+		}
+
+		
+	}
+}
+
+
+void CKYPlayerDlg::OnManagerlistLoad()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CKYPlayerDlg::OnManagerlistNew()
+{
+	// TODO: Add your command handler code here
+
+	// should popup a dialog to let user to set the name, 
+	// or give them a chance to modify the name after the list have been created
+	KY::PlayList pl;	// default constructor to use the rand name
+
+	auto name = pl.GetName();
+
+	KY::PlayListMgr::Inst()->AddPlayList(pl);
 }

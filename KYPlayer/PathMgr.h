@@ -10,10 +10,13 @@ namespace KY
 		PathMgr();
 		~PathMgr();
 
-		fs::wpath GetSettingPath() const;
+		const fs::wpath& GetSettingPath() const;
+		const fs::wpath& GetPlayListPath() const;
+
 
 	private:
 		fs::wpath m_SettingPath;
+		fs::wpath m_PlayListPath;
 	};
 }
 #endif //_PATHMGR_H_

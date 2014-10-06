@@ -52,14 +52,32 @@
 #endif
 
 
+//{@	STL
 #include <vector>
 #include <list>
 #include <unordered_set>
 #include <unordered_map>
 
 #include <algorithm>
+#include <numeric>
+
 #include <filesystem>
 
-namespace fs = std::tr2::sys;
+#include <sstream>
 
+
+
+namespace fs = std::tr2::sys;
+//@}
+
+
+//{@	Boost
 #include "boost/assert.hpp"
+//@}
+
+//{@	Mine
+#include "TypeDef.h"
+//@}
+
+
+
