@@ -397,6 +397,7 @@ void CKYPlayerDlg::OnCbnSelchangeComboPlayListName()
 void CKYPlayerDlg::AfterInit()
 {
 	ResetPlayListCombo();	
+	PlayLastSong();
 }
 
 void CKYPlayerDlg::ResetPlayListCombo()
@@ -418,6 +419,22 @@ void CKYPlayerDlg::ResetPlayListCombo()
 	if (nullptr != pl)
 	{
 		pPLCB->SelectString(0, pl->GetName().c_str());
+	}
+}
+
+void CKYPlayerDlg::PlayLastSong()
+{
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+	if (nullptr != pl)
+	{
+		auto soundInfo = pl->GetSoundInfo(pl->GetPlayingIdx());
+
+		if (nullptr != soundInfo)
+		{
+			KY::PlayListMgr::Inst()->SetCurPlayListName(soundInfo->fileName.string());
+
+			KY::SoundSystem::Inst()->PlaySound(pl->GetPlayingIdx());
+		}
 	}
 }
 

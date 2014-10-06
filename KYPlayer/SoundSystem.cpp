@@ -50,7 +50,7 @@ namespace KY
 		auto pl = PlayListMgr::Inst()->GetCurPlayList();
 		auto soundInfo = pl->GetSoundInfo(idx);
 		++soundInfo->playTimes;
-		pl->Save(pl->GetSavePath());
+		pl->Save(pl->GetSavePath());	
 
 		PlaySound(soundInfo->fileName, bPlayImmediately);
 	}

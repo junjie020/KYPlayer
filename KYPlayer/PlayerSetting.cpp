@@ -32,7 +32,7 @@ namespace KY
 
 	static std::wstring get_play_ctrl_name(PlayControl pc)
 	{
-		const wchar_t* names[] = { L"AllLoop", L"SingleLoop", L"RandomPlay" };
+		const wchar_t* names[] = { L"SingleLoop", L"AllLoop", L"RandomPlay" };
 		return names[pc];		
 	}
 
@@ -86,6 +86,8 @@ namespace KY
 
 		check_insert_set_value(pRootElem, "LastPlayList", pl->GetName());
 		check_insert_set_value(pRootElem, "PlayOrder", get_play_ctrl_name(m_PlayCtrl));
+		std::wostringstream oss; oss << pl->GetPlayingIdx();
+		check_insert_set_value(pRootElem, "LastSongIdx", oss.str());
 
 		const auto pp = get_setting_path();
 		return tinyxml2::XML_SUCCESS == m_pDoc->SaveFile(Utils::utf16_to_utf8(pp).c_str());
@@ -112,6 +114,21 @@ namespace KY
 			if (nullptr != ctrlText)
 			{
 				m_PlayCtrl = PlayControl(get_play_ctrl(ctrlText));
+			}
+
+			tinyxml2::XMLElement *pLastSongIdx = pRootElem->FirstChildElement("LastSongIdx");
+			if (pLastSongIdx)
+			{
+				std::istringstream iss;
+				auto idx = pLastSongIdx->GetText();
+				iss.str(idx);
+				auto pl = PlayListMgr::Inst()->GetCurPlayList();
+				if (nullptr != pl)
+				{
+					uint32 cc = 0;
+					iss >> cc;				
+					pl->SetPlayingIdx(cc);					
+				}
 			}
 		}
 		else

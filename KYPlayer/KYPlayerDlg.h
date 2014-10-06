@@ -46,6 +46,7 @@ private:
 	void AfterInit();
 
 	void ResetPlayListCombo();	
+	void PlayLastSong();
 
 private:
 public:
