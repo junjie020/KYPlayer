@@ -8,7 +8,7 @@ namespace KY
 	{
 		const auto cc = fs::current_path<fs::wpath>();
 		
-		fs::current_path(fs::wpath(L"../"));
+		fs::current_path(fs::wpath(L"../../"));
 
 		const auto myDir = fs::current_path<fs::wpath>();
 
