@@ -24,7 +24,7 @@ namespace KY
 			BOOST_ASSERT(pTmp == ms_Inst);
 			return ms_Inst;
 #else //!_DEBUG
-			return new pTmp;
+			return new Type();
 #endif // _DEBUG
 
 		}
