@@ -24,8 +24,6 @@ public:
 public:
 	virtual BOOL InitInstance();
 
-	virtual BOOL OnIdle(LONG lCount);
-
 // Implementation
 
 	DECLARE_MESSAGE_MAP()

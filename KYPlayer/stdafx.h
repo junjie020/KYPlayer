@@ -65,7 +65,11 @@
 
 #include <sstream>
 
-
+//{@
+#include <thread>
+#include <mutex>
+#include <chrono>
+//@}
 
 namespace fs = std::tr2::sys;
 //@}

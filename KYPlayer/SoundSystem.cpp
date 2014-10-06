@@ -12,13 +12,18 @@ namespace KY
 		: m_pModSystem(nullptr)
 		, m_pCurPlayingSound(nullptr)
 		, m_pCurPlayingChannel(nullptr)
+		, m_bExist(false)
 	{
 		KY_MOD_VER(FMOD::System_Create(&m_pModSystem));
 		KY_MOD_VER(m_pModSystem->init(48, FMOD_INIT_NORMAL|FMOD_2D, nullptr));
+
+		m_WatchThread = std::thread(WatchThread);
 	}
 
 	SoundSystem::~SoundSystem()
 	{
+		m_bExist = true;
+		m_WatchThread.join();
 		clearCurPlay();
 
 		if (nullptr != m_pModSystem)
@@ -33,14 +38,15 @@ namespace KY
 		bool bPaly = false;
 		if (nullptr != m_pCurPlayingChannel)
 		{
-			KY_MOD_VER(m_pCurPlayingChannel->isPlaying(&bPaly));
+			return FMOD_OK == m_pCurPlayingChannel->isPlaying(&bPaly);
 		}
 
-		return bPaly;		
+		return bPaly;
 	}
 
 	void SoundSystem::PlaySound(uint32 idx, bool bPlayImmediately /*= true*/)
 	{
+		std::lock_guard<std::mutex> guard(m_PlayNextMutex);
 		auto pl = PlayListMgr::Inst()->GetCurPlayList();
 		auto soundInfo = pl->GetSoundInfo(idx);
 		++soundInfo->playTimes;
@@ -111,4 +117,34 @@ namespace KY
 		
 		PlaySound(nextIdx, true);		
 	}
+
+	void SoundSystem::WatchThread()
+	{
+		auto pSoundSys = SoundSystem::Inst();
+		while (!pSoundSys->IsExist())
+		{
+			::Sleep(500);
+
+			if (!pSoundSys->IsReady())
+				continue;
+
+			pSoundSys->Update();
+			
+			if (pSoundSys->IsPlaying() )
+				continue;
+
+			pSoundSys->PlayNextSound();
+		}
+	}
+
+	bool SoundSystem::IsReady() const
+	{
+		return nullptr != m_pCurPlayingSound && nullptr != m_pCurPlayingChannel;
+	}
+
+	void SoundSystem::Update()
+	{
+		KY_MOD_VER(m_pModSystem->update());
+	}
+
 }

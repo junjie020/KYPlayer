@@ -102,16 +102,3 @@ BOOL CKYPlayerApp::InitInstance()
 	return FALSE;
 }
 
-BOOL CKYPlayerApp::OnIdle(LONG lCount)
-{
-	if (lCount == 10)
-	{
-		if (!KY::SoundSystem::Inst()->IsPlaying())
-		{
-			KY::SoundSystem::Inst()->PlayNextSound();
-		}
-	}
-
-	return FALSE;
-}
-
