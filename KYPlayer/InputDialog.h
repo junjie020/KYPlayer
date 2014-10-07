@@ -12,6 +12,7 @@ public:
 	virtual ~CInputDialog();
 
 	virtual void OnCancel() override;
+	virtual void OnOK() override;
 
 	virtual BOOL OnInitDialog() override;
 

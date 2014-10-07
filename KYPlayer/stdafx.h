@@ -84,4 +84,9 @@ namespace fs = std::tr2::sys;
 //@}
 
 
+#ifdef _DEBUG
+#ifdef _WIN32
+#define DB_W32	1
+#endif	//_WIN32
+#endif	//_DEBUG
 

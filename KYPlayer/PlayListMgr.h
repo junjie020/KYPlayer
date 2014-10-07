@@ -29,6 +29,9 @@ namespace KY
 		SoundInfo*	GetSoundInfo(uint32 idx);
 
 		const fs::wpath& GetSavePath() const;
+	
+		int32 FindFirstSongByName(const std::wstring &name) const;
+
 
 	public:
 		bool Save(const fs::wpath &p);

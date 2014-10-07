@@ -63,5 +63,7 @@ public:
 	afx_msg void OnManagerlistLoad();
 	afx_msg void OnManagerlistNew();
 	afx_msg void OnCbnSelchangeComboPlayListName();	
-	afx_msg void OnCbnKillfocusComboPlayListName();
+	afx_msg void OnCbnKillfocusComboPlayListName();	
+	afx_msg void OnFindUsingname();
+	afx_msg void OnNMClickSoundList(NMHDR *pNMHDR, LRESULT *pResult);
 };

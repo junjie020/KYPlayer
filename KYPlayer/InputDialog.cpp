@@ -51,5 +51,10 @@ BOOL CInputDialog::OnInitDialog()
 	return TRUE;
 }
 
+void CInputDialog::OnOK()
+{
+	OnCancel();
+}
+
 
 // CInputDialog message handlers

@@ -83,7 +83,9 @@ BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_COMMAND(ID_MANAGERLIST_LOAD, &CKYPlayerDlg::OnManagerlistLoad)
 	ON_COMMAND(ID_MANAGERLIST_NEW, &CKYPlayerDlg::OnManagerlistNew)
 	ON_CBN_SELCHANGE(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnSelchangeComboPlayListName)	
-	ON_CBN_KILLFOCUS(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnKillfocusComboPlayListName)
+	ON_CBN_KILLFOCUS(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnKillfocusComboPlayListName)	
+	ON_COMMAND(ID_FIND_USINGNAME, &CKYPlayerDlg::OnFindUsingname)
+	ON_NOTIFY(NM_CLICK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMClickSoundList)
 END_MESSAGE_MAP()
 
 
@@ -466,4 +468,36 @@ void CKYPlayerDlg::PlaySong(KY::PlayList *pl, KY::uint32 idx)
 	{
 		SetWindowText((L"KYPlayer - " + soundInfo->fileName.string()).c_str());
 	}
+}
+
+void CKYPlayerDlg::OnFindUsingname()
+{
+	// TODO: Add your command handler code here
+	CInputDialog dlg(L"Find Song By Name");
+	dlg.DoModal();
+
+	auto content = dlg.GetContent();
+
+	if (content.empty())
+		return;
+
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+
+	auto idx = pl->FindFirstSongByName(content);
+
+	if (idx < 0)
+		return;
+
+	auto pList = GET_LC();
+
+	pList->SetItemState(idx, LVIS_SELECTED, LVIS_SELECTED);
+	pList->EnsureVisible(idx, FALSE);
+}
+
+
+void CKYPlayerDlg::OnNMClickSoundList(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
 }

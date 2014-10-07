@@ -93,18 +93,12 @@ namespace KY
 				nullptr != pChild; pChild = pChild->NextSiblingElement())
 			{
 				auto pNameElem = pChild->FirstChildElement("Name");
-				SoundInfo info;
 				auto nameText = pNameElem->GetText();
-				BOOST_ASSERT(nullptr != nameText);
-				info.fileName = KY::Utils::utf8_to_utf16(nameText);
 
 				auto pTimesElem = pChild->FirstChildElement("PlayTimes");
-				if (nullptr != pTimesElem)
-				{
-					info.playTimes = std::atoi(pNameElem->GetText());
-				}
+				auto timeText = nullptr != pTimesElem ? pTimesElem->GetText() : "";
 
-				m_PLList.push_back(info);
+				AddSound(Utils::utf8_to_utf16(nameText), std::atoi(timeText));				
 			}
 
 			return true;
@@ -121,7 +115,11 @@ namespace KY
 
 	bool PlayList::AddSound(const fs::wpath &soundPath, uint32 playTimes)
 	{
-		SoundInfo info = { soundPath, L"", L"", playTimes };
+#ifdef DB_W32
+		OutputDebugString(L"showname and artist name need get from SoundSystem");
+#endif //DB_W32
+
+		SoundInfo info = { soundPath, soundPath, L"", playTimes };
 		return AddSound(info);
 	}
 
@@ -136,6 +134,21 @@ namespace KY
 	{
 		BOOST_ASSERT(idx < m_PLList.size());
 		return &m_PLList[idx];
+	}
+
+	int32 PlayList::FindFirstSongByName(const std::wstring &name) const
+	{
+		auto itFound = std::find_if(m_PLList.begin(), m_PLList.end(), 
+			[&name](const SoundInfo &info)
+			{
+				return info.showName.find(name) != std::wstring::npos;				
+			}
+		);
+
+		if (itFound == m_PLList.end())
+			return -1;
+
+		return std::distance(m_PLList.begin(), itFound);		
 	}
 
 
