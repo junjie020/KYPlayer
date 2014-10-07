@@ -59,9 +59,9 @@ namespace KY
 	void SoundSystem::PlaySound(const std::wstring &fileName, bool bPlayImmediately /*= true*/)
 	{
 		clearCurPlay();
-		KY_MOD_VER(m_pModSystem->createSound(Utils::utf16_to_utf8(fileName).c_str(), FMOD_DEFAULT, 0, &m_pCurPlayingSound));
+		KY_MOD_VER(m_pModSystem->createStream(Utils::utf16_to_utf8(fileName).c_str(), FMOD_DEFAULT, 0, &m_pCurPlayingSound));
 
-		KY_MOD_VER(m_pModSystem->update());
+		Update();
 		KY_MOD_VER(m_pModSystem->playSound(m_pCurPlayingSound, nullptr, !bPlayImmediately, &m_pCurPlayingChannel));
 	}
 
