@@ -5,8 +5,10 @@ namespace KY
 {
 	struct SoundInfo
 	{
-		fs::wpath	fileName;
-		uint32		playTimes;
+		fs::wpath		fileName;
+		std::wstring	showName;	// get from mp3 file
+		std::wstring	artistName;
+		uint32			playTimes;
 	};
 
 	typedef std::vector<SoundInfo>	SoundInfoList;

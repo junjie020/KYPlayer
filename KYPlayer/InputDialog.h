@@ -8,10 +8,12 @@ class CInputDialog : public CDialog
 	DECLARE_DYNAMIC(CInputDialog)
 
 public:
-	CInputDialog(CWnd* pParent = NULL);   // standard constructor
+	CInputDialog(const std::wstring &dlgName, CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInputDialog();
 
-	virtual void OnCancel();
+	virtual void OnCancel() override;
+
+	virtual BOOL OnInitDialog() override;
 
 // Dialog Data
 	enum { IDD = IDD_DIALOG_INPUT_CONTENT };
@@ -25,7 +27,7 @@ public:
 	const std::wstring& GetContent() const;
 
 private:
-
+	std::wstring m_DlgName;
 	std::wstring m_Content;
 };
 

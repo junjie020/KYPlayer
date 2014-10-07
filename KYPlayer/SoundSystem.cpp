@@ -60,7 +60,6 @@ namespace KY
 	{
 		clearCurPlay();
 		KY_MOD_VER(m_pModSystem->createStream(Utils::utf16_to_utf8(fileName).c_str(), FMOD_DEFAULT, 0, &m_pCurPlayingSound));
-
 		Update();
 		KY_MOD_VER(m_pModSystem->playSound(m_pCurPlayingSound, nullptr, !bPlayImmediately, &m_pCurPlayingChannel));
 	}

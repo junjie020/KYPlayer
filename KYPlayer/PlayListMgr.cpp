@@ -121,7 +121,7 @@ namespace KY
 
 	bool PlayList::AddSound(const fs::wpath &soundPath, uint32 playTimes)
 	{
-		SoundInfo info = { soundPath, playTimes };
+		SoundInfo info = { soundPath, L"", L"", playTimes };
 		return AddSound(info);
 	}
 

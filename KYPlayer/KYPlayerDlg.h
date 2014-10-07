@@ -4,6 +4,10 @@
 
 #pragma once
 
+namespace KY
+{
+	class PlayList;
+}
 
 // CKYPlayerDlg dialog
 class CKYPlayerDlg : public CDialogEx
@@ -47,6 +51,8 @@ private:
 
 	void ResetPlayListCombo();	
 	void PlayLastSong();
+
+	void PlaySong(KY::PlayList *pl, KY::uint32 idx);
 
 private:
 public:

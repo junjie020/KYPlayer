@@ -11,10 +11,10 @@
 
 IMPLEMENT_DYNAMIC(CInputDialog, CDialog)
 
-CInputDialog::CInputDialog(CWnd* pParent /*=NULL*/)
+CInputDialog::CInputDialog(const std::wstring &dlgName, CWnd* pParent /*=NULL*/)
 	: CDialog(CInputDialog::IDD, pParent)
+	, m_DlgName(dlgName)
 {
-
 }
 
 CInputDialog::~CInputDialog()
@@ -41,6 +41,14 @@ void CInputDialog::OnCancel()
 	m_Content = content;
 
 	CDialog::OnCancel();
+}
+
+BOOL CInputDialog::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	SetWindowText(m_DlgName.c_str());
+	return TRUE;
 }
 
 

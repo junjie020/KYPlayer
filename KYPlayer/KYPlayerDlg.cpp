@@ -209,9 +209,7 @@ void CKYPlayerDlg::OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult)
 
 	BOOST_ASSERT(nullptr != pl);
 
-	pl->SetPlayingIdx(pNMItemActivate->iItem);
-
-	KY::SoundSystem::Inst()->PlaySound(pNMItemActivate->iItem, true);	
+	PlaySong(pl, pNMItemActivate->iItem);
 }
 
 void CKYPlayerDlg::InitSoundListCtrl()
@@ -345,7 +343,7 @@ void CKYPlayerDlg::OnManagerlistSave()
 
 		if (savePath.empty())
 		{
-			CInputDialog inDlg;
+			CInputDialog inDlg(L"Save Play List Name");
 			inDlg.DoModal();
 
 			savePath = (KY::PathMgr::Inst()->GetPlayListPath() / fs::wpath(inDlg.GetContent() + L".pl"));
@@ -428,8 +426,8 @@ void CKYPlayerDlg::PlayLastSong()
 	if (nullptr != pl && !pl->GetPLInfoList().empty() )
 	{
 		const auto idx = KY::PlayerSetting::Inst()->GetLastPlayingIdx();
-		pl->SetPlayingIdx(idx);
-		KY::SoundSystem::Inst()->PlaySound(idx);		
+		PlaySong(pl, idx);
+		
 	}
 }
 
@@ -455,4 +453,17 @@ void CKYPlayerDlg::OnCbnKillfocusComboPlayListName()
 	ResetPlayListCombo();
 
 	KY::PlayerSetting::Inst()->Save();
+}
+
+void CKYPlayerDlg::PlaySong(KY::PlayList *pl, KY::uint32 idx)
+{
+	pl->SetPlayingIdx(idx);
+
+	KY::SoundSystem::Inst()->PlaySound(idx);
+
+	auto soundInfo = pl->GetSoundInfo(idx);
+	if (nullptr != soundInfo)
+	{
+		SetWindowText((L"KYPlayer - " + soundInfo->fileName.string()).c_str());
+	}
 }
