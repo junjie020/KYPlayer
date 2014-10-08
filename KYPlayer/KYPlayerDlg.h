@@ -37,7 +37,9 @@ protected:
 private:
 	enum ListColType
 	{
-		LCT_Name = 0,
+		LCT_Num = 0,
+		LCT_Name,
+		LCT_Artist,
 		LCT_Count,
 	};
 
@@ -64,6 +66,5 @@ public:
 	afx_msg void OnManagerlistNew();
 	afx_msg void OnCbnSelchangeComboPlayListName();	
 	afx_msg void OnCbnKillfocusComboPlayListName();	
-	afx_msg void OnFindUsingname();
-	afx_msg void OnNMClickSoundList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnFindUsingname();		
 };

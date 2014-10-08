@@ -21,6 +21,8 @@
 #include "Utils.h"
 
 
+using KY::uint32;
+
 // CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialogEx
@@ -84,8 +86,7 @@ BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_COMMAND(ID_MANAGERLIST_NEW, &CKYPlayerDlg::OnManagerlistNew)
 	ON_CBN_SELCHANGE(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnSelchangeComboPlayListName)	
 	ON_CBN_KILLFOCUS(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnKillfocusComboPlayListName)	
-	ON_COMMAND(ID_FIND_USINGNAME, &CKYPlayerDlg::OnFindUsingname)
-	ON_NOTIFY(NM_CLICK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMClickSoundList)
+	ON_COMMAND(ID_FIND_USINGNAME, &CKYPlayerDlg::OnFindUsingname)		
 END_MESSAGE_MAP()
 
 
@@ -219,7 +220,13 @@ void CKYPlayerDlg::InitSoundListCtrl()
 	auto pList = GET_LC();
 	::CRect rt;
 	pList->GetWindowRect(&rt);
-	pList->InsertColumn(LCT_Name, L"Name", rt.Width(), rt.Width());
+	const uint32 numColWidth = uint32(rt.Width() * 0.1f);
+	pList->InsertColumn(LCT_Num, L"Num", numColWidth, numColWidth);
+	const uint32 nameColWidth = uint32(rt.Width() * 0.75f);
+	pList->InsertColumn(LCT_Name, L"Name", nameColWidth, nameColWidth);
+
+	const uint32 artistColoWidth = rt.Width() - nameColWidth - numColWidth;
+	pList->InsertColumn(LCT_Artist, L"Artist", artistColoWidth, artistColoWidth);
 }
 
 static bool init_cur_play_list_from_setting()
@@ -253,10 +260,32 @@ void CKYPlayerDlg::FillSoundList()
 
 	auto plInfo = pl->GetPLInfoList();
 	auto pListCtrl = GET_LC();
-	for (auto it = plInfo.begin(); it != plInfo.end(); ++it)
+	uint32 idx = 1;
+	for (auto it = plInfo.begin(); it != plInfo.end(); ++it, ++idx)
 	{
 		auto soundInfo = *it;
-		pListCtrl->InsertItem(pListCtrl->GetItemCount(), soundInfo.fileName.string().c_str());
+
+		LVITEM item = { 0 };
+		item.iItem = pListCtrl->GetItemCount();		
+		item.mask = LVIF_TEXT;
+
+		
+		std::wstring tmp;
+		std::wostringstream oss; oss << idx;
+		tmp = oss.str();
+
+		item.pszText = &*tmp.begin();
+		item.iSubItem = LCT_Num;
+
+
+		pListCtrl->InsertItem(&item);
+
+		//pListCtrl->InsertItem(pListCtrl->GetItemCount(), soundInfo.fileName.string().c_str());
+
+		item.iSubItem = LCT_Name;
+		tmp = soundInfo.fileName.string();
+		item.pszText = &*tmp.begin();
+		pListCtrl->SetItem(&item);		
 	}
 }
 
@@ -492,12 +521,4 @@ void CKYPlayerDlg::OnFindUsingname()
 
 	pList->SetItemState(idx, LVIS_SELECTED, LVIS_SELECTED);
 	pList->EnsureVisible(idx, FALSE);
-}
-
-
-void CKYPlayerDlg::OnNMClickSoundList(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-	// TODO: Add your control notification handler code here
-	*pResult = 0;
 }
