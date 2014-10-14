@@ -77,7 +77,8 @@ void CKYPlayerDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()		
+	ON_WM_QUERYDRAGICON()
+	ON_WM_DESTROY()
 	ON_NOTIFY(NM_DBLCLK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMDblclkSoundList)
 	ON_NOTIFY(NM_RCLICK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMRClickSoundList)
 	ON_COMMAND(ID_SOUNDLIST_ADDFILEFROMFOLDER, &CKYPlayerDlg::OnSoundlistAddfilefromfolder)		
@@ -277,10 +278,7 @@ void CKYPlayerDlg::FillSoundList()
 		item.pszText = &*tmp.begin();
 		item.iSubItem = LCT_Num;
 
-
 		pListCtrl->InsertItem(&item);
-
-		//pListCtrl->InsertItem(pListCtrl->GetItemCount(), soundInfo.fileName.string().c_str());
 
 		item.iSubItem = LCT_Name;
 		tmp = soundInfo.fileName.string();
@@ -521,4 +519,16 @@ void CKYPlayerDlg::OnFindUsingname()
 
 	pList->SetItemState(idx, LVIS_SELECTED, LVIS_SELECTED);
 	pList->EnsureVisible(idx, FALSE);
+}
+
+void CKYPlayerDlg::OnDestroy()
+{
+	KY::PlayerSetting::Inst()->Save();
+
+	KY::SoundSystem::Destory();
+	KY::PlayListMgr::Destory();
+	KY::PlayerSetting::Destory();	
+	KY::PathMgr::Destory();
+
+	CDialogEx::OnDestroy();
 }

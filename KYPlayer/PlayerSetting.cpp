@@ -51,8 +51,7 @@ namespace KY
 	}
 
 	PlayerSetting::~PlayerSetting()
-	{
-		Save();
+	{		
 	}
 
 	KY::PlayControl PlayerSetting::GetPlayControl() const

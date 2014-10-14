@@ -28,7 +28,8 @@ protected:
 	HICON m_hIcon;
 
 	// Generated message map functions
-	virtual BOOL OnInitDialog();
+	virtual BOOL OnInitDialog();	
+
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
@@ -56,6 +57,8 @@ private:
 
 	void PlaySong(KY::PlayList *pl, KY::uint32 idx);
 
+	void CleanUp();
+
 private:
 public:
 	afx_msg void OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult);
@@ -66,5 +69,6 @@ public:
 	afx_msg void OnManagerlistNew();
 	afx_msg void OnCbnSelchangeComboPlayListName();	
 	afx_msg void OnCbnKillfocusComboPlayListName();	
-	afx_msg void OnFindUsingname();		
+	afx_msg void OnFindUsingname();
+	afx_msg void OnDestroy();
 };
