@@ -32,6 +32,8 @@ namespace KY
 	
 		int32 FindFirstSongByName(const std::wstring &name) const;
 
+		bool MoveSongTo(uint32 idxFrom, uint32 toIdx);
+
 
 	public:
 		bool Save(const fs::wpath &p);
@@ -44,6 +46,8 @@ namespace KY
 		inline uint32 GetPlayingIdx() const;
 		inline void SetPlayingIdx(uint32 idx);
 
+	private:
+		void UpdatePlayingIdx(const fs::wpath &p);
 	private:
 		SoundInfoList	m_PLList;
 		std::wstring	m_Name;

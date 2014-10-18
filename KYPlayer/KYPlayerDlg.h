@@ -71,4 +71,6 @@ public:
 	afx_msg void OnCbnKillfocusComboPlayListName();	
 	afx_msg void OnFindUsingname();
 	afx_msg void OnDestroy();
+	afx_msg void OnListsortMoveto();
+	afx_msg void OnHdnEnddragSoundList(NMHDR *pNMHDR, LRESULT *pResult);
 };

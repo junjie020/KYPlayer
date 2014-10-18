@@ -151,6 +151,41 @@ namespace KY
 		return std::distance(m_PLList.begin(), itFound);		
 	}
 
+	bool PlayList::MoveSongTo(uint32 idxFrom, uint32 toIdx)
+	{
+		BOOST_ASSERT(0 <= idxFrom && idxFrom < m_PLList.size());
+		BOOST_ASSERT(0 <= toIdx && toIdx < m_PLList.size());
+
+		const fs::wpath curPlaySongFileName = m_PLList[m_PlayingIdx].fileName;
+
+		const SoundInfo soundInfo = m_PLList[idxFrom];
+
+		m_PLList.erase(m_PLList.begin() + idxFrom);
+		m_PLList.insert(m_PLList.begin() + toIdx, 1, soundInfo);
+
+		UpdatePlayingIdx(curPlaySongFileName);
+
+
+		return true;
+	}
+
+	void PlayList::UpdatePlayingIdx(const fs::wpath &p)
+	{
+		auto itPlaying = std::find_if(m_PLList.begin(), m_PLList.end(),
+			[&p](const SoundInfo &soundInfo)
+		{
+			return p == soundInfo.fileName;
+		}
+		);
+
+
+		BOOST_ASSERT(itPlaying != m_PLList.end());
+
+		m_PlayingIdx = uint32(std::distance(m_PLList.begin(), itPlaying));
+
+		BOOST_ASSERT(m_PlayingIdx >= 0);
+	}
+
 
 	PlayListMgr::PlayListMgr()
 	{

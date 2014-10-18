@@ -88,6 +88,8 @@ BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnSelchangeComboPlayListName)	
 	ON_CBN_KILLFOCUS(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnKillfocusComboPlayListName)	
 	ON_COMMAND(ID_FIND_USINGNAME, &CKYPlayerDlg::OnFindUsingname)		
+	ON_COMMAND(ID_LISTSORT_MOVETO, &CKYPlayerDlg::OnListsortMoveto)
+	ON_NOTIFY(HDN_ENDDRAG, 0, &CKYPlayerDlg::OnHdnEnddragSoundList)
 END_MESSAGE_MAP()
 
 
@@ -219,6 +221,8 @@ void CKYPlayerDlg::OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult)
 void CKYPlayerDlg::InitSoundListCtrl()
 {
 	auto pList = GET_LC();
+	auto oldStyle = pList->GetExtendedStyle();
+	pList->SetExtendedStyle(oldStyle | LVS_EX_FULLROWSELECT | LVS_EX_HEADERDRAGDROP);
 	::CRect rt;
 	pList->GetWindowRect(&rt);
 	const uint32 numColWidth = uint32(rt.Width() * 0.1f);
@@ -531,4 +535,46 @@ void CKYPlayerDlg::OnDestroy()
 	KY::PathMgr::Destory();
 
 	CDialogEx::OnDestroy();
+}
+
+
+void CKYPlayerDlg::OnListsortMoveto()
+{
+	// TODO: Add your command handler code here
+
+	auto pList = GET_LC();
+
+	const auto idx = pList->GetSelectionMark();
+	if (idx < 0)
+		return;
+
+	CInputDialog inDlg(L"Move To...");
+
+	inDlg.DoModal();
+
+	auto content = inDlg.GetContent();
+
+	std::wistringstream iss(content);
+
+	uint32 toIdx = 0;
+	iss >> toIdx;
+
+	if (toIdx == idx)
+		return;
+
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+
+	pl->MoveSongTo(idx, toIdx);
+
+
+
+
+}
+
+
+void CKYPlayerDlg::OnHdnEnddragSoundList(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMHEADER phdr = reinterpret_cast<LPNMHEADER>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
 }
