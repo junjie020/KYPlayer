@@ -9,6 +9,9 @@ namespace KY
 	class PlayList;
 }
 
+#include "DragItems.h"
+#include "afxcmn.h"
+
 // CKYPlayerDlg dialog
 class CKYPlayerDlg : public CDialogEx
 {
@@ -21,7 +24,6 @@ public:
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-
 
 // Implementation
 protected:
@@ -60,6 +62,7 @@ private:
 	void CleanUp();
 
 private:
+	KY_UI::DragPlayListItemsHelper	m_DragHelper;	
 public:
 	afx_msg void OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMRClickSoundList(NMHDR *pNMHDR, LRESULT *pResult);
@@ -72,5 +75,9 @@ public:
 	afx_msg void OnFindUsingname();
 	afx_msg void OnDestroy();
 	afx_msg void OnListsortMoveto();
-	afx_msg void OnHdnEnddragSoundList(NMHDR *pNMHDR, LRESULT *pResult);
+	
+	afx_msg void OnLvnBegindragSoundList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	CListCtrl m_PlayListCtrl;
 };

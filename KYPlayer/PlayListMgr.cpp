@@ -151,21 +151,55 @@ namespace KY
 		return std::distance(m_PLList.begin(), itFound);		
 	}
 
-	bool PlayList::MoveSongTo(uint32 idxFrom, uint32 toIdx)
+	bool PlayList::MoveSongTo(const IdxList &idxs, uint32 targetidx)
 	{
-		BOOST_ASSERT(0 <= idxFrom && idxFrom < m_PLList.size());
-		BOOST_ASSERT(0 <= toIdx && toIdx < m_PLList.size());
+		if (idxs.size() > m_PLList.size())
+			return false;
 
 		const fs::wpath curPlaySongFileName = m_PLList[m_PlayingIdx].fileName;
 
-		const SoundInfo soundInfo = m_PLList[idxFrom];
+		SoundInfoList moveList;
+		std::for_each(idxs.begin(), idxs.end(),
+			[&](uint32 idx)
+			{
+				BOOST_ASSERT(idx < m_PLList.size());
+				moveList.push_back(m_PLList[idx]);
+			}
+		);
 
-		m_PLList.erase(m_PLList.begin() + idxFrom);
-		m_PLList.insert(m_PLList.begin() + toIdx, 1, soundInfo);
+		uint32 idxHaveDel = 0;
+		for (auto it = idxs.begin(); it != idxs.end(); ++it)
+		{
+			const uint32 id = *it - idxHaveDel;
+
+			m_PLList.erase(m_PLList.begin() + id);
+		}
+
+		for (auto it = idxs.begin(); it != idxs.end(); ++it)
+		{
+			if (*it < targetidx)
+				--targetidx;
+		}
+
+		std::for_each(moveList.begin(), moveList.end(),
+			[&](const SoundInfo &si)
+			{
+				m_PLList.insert(m_PLList.begin() + targetidx++, si);
+			}
+		);
+
+		BOOST_ASSERT(moveList.back().fileName == m_PLList[targetidx-1].fileName);
 
 		UpdatePlayingIdx(curPlaySongFileName);
+		return true;
+	}
 
+	bool PlayList::MoveSongTo(uint32 idxFrom, uint32 targetIdx)
+	{
+		IdxList idxs;
+		idxs.push_back(idxFrom);
 
+		return MoveSongTo(idxs, targetIdx);
 		return true;
 	}
 

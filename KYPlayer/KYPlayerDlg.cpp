@@ -72,6 +72,7 @@ CKYPlayerDlg::CKYPlayerDlg(CWnd* pParent /*=NULL*/)
 void CKYPlayerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_SOUND_LIST, m_PlayListCtrl);
 }
 
 BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
@@ -79,6 +80,8 @@ BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DESTROY()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONUP()
 	ON_NOTIFY(NM_DBLCLK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMDblclkSoundList)
 	ON_NOTIFY(NM_RCLICK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMRClickSoundList)
 	ON_COMMAND(ID_SOUNDLIST_ADDFILEFROMFOLDER, &CKYPlayerDlg::OnSoundlistAddfilefromfolder)		
@@ -88,8 +91,8 @@ BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnSelchangeComboPlayListName)	
 	ON_CBN_KILLFOCUS(IDC_COMBO_PLAY_LIST_NAME, &CKYPlayerDlg::OnCbnKillfocusComboPlayListName)	
 	ON_COMMAND(ID_FIND_USINGNAME, &CKYPlayerDlg::OnFindUsingname)		
-	ON_COMMAND(ID_LISTSORT_MOVETO, &CKYPlayerDlg::OnListsortMoveto)
-	ON_NOTIFY(HDN_ENDDRAG, 0, &CKYPlayerDlg::OnHdnEnddragSoundList)
+	ON_COMMAND(ID_LISTSORT_MOVETO, &CKYPlayerDlg::OnListsortMoveto)	
+	ON_NOTIFY(LVN_BEGINDRAG, IDC_SOUND_LIST, &CKYPlayerDlg::OnLvnBegindragSoundList)
 END_MESSAGE_MAP()
 
 
@@ -232,6 +235,9 @@ void CKYPlayerDlg::InitSoundListCtrl()
 
 	const uint32 artistColoWidth = rt.Width() - nameColWidth - numColWidth;
 	pList->InsertColumn(LCT_Artist, L"Artist", artistColoWidth, artistColoWidth);
+
+
+	m_DragHelper.SetListCtrl(pList);
 }
 
 static bool init_cur_play_list_from_setting()
@@ -260,18 +266,19 @@ static bool init_cur_play_list_from_setting()
 
 void CKYPlayerDlg::FillSoundList()
 {
+	m_PlayListCtrl.DeleteAllItems();
 	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
 	BOOST_ASSERT(nullptr != pl);
 
 	auto plInfo = pl->GetPLInfoList();
-	auto pListCtrl = GET_LC();
+	
 	uint32 idx = 1;
 	for (auto it = plInfo.begin(); it != plInfo.end(); ++it, ++idx)
 	{
 		auto soundInfo = *it;
 
 		LVITEM item = { 0 };
-		item.iItem = pListCtrl->GetItemCount();		
+		item.iItem = m_PlayListCtrl.GetItemCount();
 		item.mask = LVIF_TEXT;
 
 		
@@ -282,12 +289,12 @@ void CKYPlayerDlg::FillSoundList()
 		item.pszText = &*tmp.begin();
 		item.iSubItem = LCT_Num;
 
-		pListCtrl->InsertItem(&item);
+		m_PlayListCtrl.InsertItem(&item);
 
 		item.iSubItem = LCT_Name;
 		tmp = soundInfo.fileName.string();
 		item.pszText = &*tmp.begin();
-		pListCtrl->SetItem(&item);		
+		m_PlayListCtrl.SetItem(&item);		
 	}
 }
 
@@ -565,16 +572,48 @@ void CKYPlayerDlg::OnListsortMoveto()
 	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
 
 	pl->MoveSongTo(idx, toIdx);
-
-
-
-
 }
 
 
-void CKYPlayerDlg::OnHdnEnddragSoundList(NMHDR *pNMHDR, LRESULT *pResult)
+
+
+
+void CKYPlayerDlg::OnLvnBegindragSoundList(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	LPNMHEADER phdr = reinterpret_cast<LPNMHEADER>(pNMHDR);
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	m_DragHelper.BeginDrag(pNMLV->iItem, pNMLV->ptAction);
+
 	// TODO: Add your control notification handler code here
 	*pResult = 0;
+}
+
+void CKYPlayerDlg::OnMouseMove(UINT nFlags, CPoint point)
+{
+	m_DragHelper.Dragging(point);
+	CDialogEx::OnMouseMove(nFlags, point);
+
+}
+
+void CKYPlayerDlg::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	const auto dropIdx = m_DragHelper.GetDropIdx();
+	m_DragHelper.EndDrag();
+
+	KY::PlayList::IdxList	idxList;
+	auto pos = m_PlayListCtrl.GetFirstSelectedItemPosition();
+	do 
+	{
+		auto idx = m_PlayListCtrl.GetNextSelectedItem(pos);
+		idxList.push_back(KY::uint32(idx));
+
+		m_PlayListCtrl.SetItemState(idx, 0, LVIS_SELECTED); // remove selection
+	} while (pos);
+
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+
+	pl->MoveSongTo(idxList, dropIdx);
+
+	FillSoundList();
+
+	CDialogEx::OnLButtonUp(nFlags, point);
 }

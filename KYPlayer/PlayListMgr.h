@@ -32,7 +32,13 @@ namespace KY
 	
 		int32 FindFirstSongByName(const std::wstring &name) const;
 
-		bool MoveSongTo(uint32 idxFrom, uint32 toIdx);
+
+		typedef std::list<uint32>	IdxList;
+
+		bool MoveSongTo(const IdxList &idxs, uint32 targetidx);
+		bool MoveSongTo(uint32 idxFrom, uint32 targetidx);
+
+
 
 
 	public:

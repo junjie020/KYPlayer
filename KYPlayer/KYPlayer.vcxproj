@@ -110,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonDef.h" />
+    <ClInclude Include="DragItems.h" />
     <ClInclude Include="InputDialog.h" />
     <ClInclude Include="KYPlayer.h" />
     <ClInclude Include="KYPlayerDlg.h" />
@@ -125,6 +126,7 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DragItems.cpp" />
     <ClCompile Include="InputDialog.cpp" />
     <ClCompile Include="KYPlayer.cpp" />
     <ClCompile Include="KYPlayerDlg.cpp" />
@@ -146,6 +148,9 @@
     <None Include="res\KYPlayer.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\bitmap1.bmp" />
+    <Image Include="res\bmp00001.bmp" />
+    <Image Include="res\bmp00002.bmp" />
     <Image Include="res\KYPlayer.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
