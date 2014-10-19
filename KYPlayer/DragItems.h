@@ -15,6 +15,8 @@ namespace KY_UI
 
 		void Dragging(const CPoint &point);
 
+		bool IsDragging() const;
+
 		KY::uint32 GetDropIdx() const;
 
 		void EndDrag();
@@ -34,6 +36,11 @@ namespace KY_UI
 		bool		m_bDragging;	//T during a drag operation
 
 	};
+
+	inline bool DragPlayListItemsHelper::IsDragging() const
+	{
+		return m_bDragging;
+	}
 
 	inline void DragPlayListItemsHelper::SetListCtrl(CListCtrl *pList)
 	{

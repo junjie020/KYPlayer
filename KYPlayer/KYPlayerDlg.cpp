@@ -82,6 +82,7 @@ BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
+	ON_WM_TIMER()
 	ON_NOTIFY(NM_DBLCLK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMDblclkSoundList)
 	ON_NOTIFY(NM_RCLICK, IDC_SOUND_LIST, &CKYPlayerDlg::OnNMRClickSoundList)
 	ON_COMMAND(ID_SOUNDLIST_ADDFILEFROMFOLDER, &CKYPlayerDlg::OnSoundlistAddfilefromfolder)		
@@ -589,6 +590,31 @@ void CKYPlayerDlg::OnLvnBegindragSoundList(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CKYPlayerDlg::OnMouseMove(UINT nFlags, CPoint point)
 {
+	if (m_DragHelper.IsDragging())
+	{
+		//CPoint pt(point);
+		//ClientToScreen(&pt); //convert to screen coordinates
+
+		UINT flags = 0;
+		const auto hitIdx = m_PlayListCtrl.HitTest(point, &flags);
+
+		const auto topIdx = m_PlayListCtrl.GetTopIndex();
+
+		const auto bottomIdx = topIdx + m_PlayListCtrl.GetCountPerPage();
+
+		if (topIdx == hitIdx && topIdx != 0)
+			SetTimer(TE_DragOnTop, 33, NULL);
+		else if (bottomIdx == hitIdx && bottomIdx != m_PlayListCtrl.GetItemCount())
+			SetTimer(TE_DragOnBottom, 33, NULL);
+		else
+		{
+			KillTimer(TE_DragOnTop);
+			KillTimer(TE_DragOnBottom);
+		}
+			
+	}
+
+
 	m_DragHelper.Dragging(point);
 	CDialogEx::OnMouseMove(nFlags, point);
 
@@ -615,5 +641,37 @@ void CKYPlayerDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 	FillSoundList();
 
+
+	KillTimer(TE_DragOnTop);
+	KillTimer(TE_DragOnBottom);
 	CDialogEx::OnLButtonUp(nFlags, point);
+}
+
+void CKYPlayerDlg::OnTimer(UINT_PTR nIDEvent)
+{
+#ifdef min
+#undef min
+#endif // min
+
+#ifdef max
+#undef max
+#endif // max
+	switch (nIDEvent)
+	{
+		case TE_DragOnTop:
+		{
+			const auto topIdx = std::max(0, m_PlayListCtrl.GetTopIndex() - 1);
+
+			m_PlayListCtrl.EnsureVisible(topIdx, FALSE);
+		}
+		break;
+		case TE_DragOnBottom:
+		{
+			const auto topIdx = m_PlayListCtrl.GetTopIndex();
+			const auto bottomIdx = std::min(m_PlayListCtrl.GetItemCount(), topIdx + m_PlayListCtrl.GetCountPerPage() + 1);
+			m_PlayListCtrl.EnsureVisible(bottomIdx, FALSE);
+		}
+		break;
+
+	}
 }

@@ -63,6 +63,7 @@ private:
 
 private:
 	KY_UI::DragPlayListItemsHelper	m_DragHelper;	
+	CListCtrl m_PlayListCtrl;
 public:
 	afx_msg void OnNMDblclkSoundList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMRClickSoundList(NMHDR *pNMHDR, LRESULT *pResult);
@@ -79,5 +80,11 @@ public:
 	afx_msg void OnLvnBegindragSoundList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
-	CListCtrl m_PlayListCtrl;
+
+	enum TimeEvent
+	{
+		TE_DragOnTop = 0,
+		TE_DragOnBottom,
+	};
+	afx_msg void OnTimer(UINT_PTR nIDEvent);	
 };
