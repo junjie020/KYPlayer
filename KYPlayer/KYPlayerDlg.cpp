@@ -94,6 +94,7 @@ BEGIN_MESSAGE_MAP(CKYPlayerDlg, CDialogEx)
 	ON_COMMAND(ID_FIND_USINGNAME, &CKYPlayerDlg::OnFindUsingname)		
 	ON_COMMAND(ID_LISTSORT_MOVETO, &CKYPlayerDlg::OnListsortMoveto)	
 	ON_NOTIFY(LVN_BEGINDRAG, IDC_SOUND_LIST, &CKYPlayerDlg::OnLvnBegindragSoundList)
+	ON_COMMAND(ID_LISTSORT_MOVETOTOP, &CKYPlayerDlg::OnListsortMovetotop)
 END_MESSAGE_MAP()
 
 
@@ -620,22 +621,31 @@ void CKYPlayerDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 }
 
+static KY::PlayList::IdxList get_all_sel_idxs(const CListCtrl &lc)
+{
+	KY::PlayList::IdxList idxs;
+	auto pos = lc.GetFirstSelectedItemPosition();
+	do
+	{
+		auto idx = lc.GetNextSelectedItem(pos);
+		idxs.push_back(KY::uint32(idx));		
+	} while (pos);
+
+	return idxs;
+}
+
 void CKYPlayerDlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	const auto dropIdx = m_DragHelper.GetDropIdx();
 	m_DragHelper.EndDrag();
 
-	KY::PlayList::IdxList	idxList;
-	auto pos = m_PlayListCtrl.GetFirstSelectedItemPosition();
-	do 
-	{
-		auto idx = m_PlayListCtrl.GetNextSelectedItem(pos);
-		idxList.push_back(KY::uint32(idx));
-
-		m_PlayListCtrl.SetItemState(idx, 0, LVIS_SELECTED); // remove selection
-	} while (pos);
+	KY::PlayList::IdxList	idxList = get_all_sel_idxs(m_PlayListCtrl);
 
 	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+
+	std::for_each(idxList.begin(), idxList.end(),
+		[&](uint32 idx){m_PlayListCtrl.SetItemState(idx, 0, LVIS_SELECTED); }
+	);
 
 	pl->MoveSongTo(idxList, dropIdx);
 
@@ -674,4 +684,16 @@ void CKYPlayerDlg::OnTimer(UINT_PTR nIDEvent)
 		break;
 
 	}
+}
+
+
+void CKYPlayerDlg::OnListsortMovetotop()
+{
+	// TODO: Add your command handler code here
+	const KY::PlayList::IdxList	idxList = get_all_sel_idxs(m_PlayListCtrl);
+
+	auto pl = KY::PlayListMgr::Inst()->GetCurPlayList();
+	pl->MoveSongTo(idxList, 0);
+
+	FillSoundList();
 }
